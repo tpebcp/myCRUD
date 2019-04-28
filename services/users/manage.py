@@ -24,11 +24,17 @@ def recreate_db():
 def test():
     """Runs the tests without code coverage"""
     tests = unittest.TestLoader().discover('project/tests', pattern='test*.py')
-    result = unittest.TextTestRunner(verbosity=2).run(tests)
+    result = unittest.TextTestRunner(verbosity=3).run(tests)
     if result.wasSuccessful():
         return 0
     sys.exit(result)
 
+@cli.command('seed_db')
+def seed_db():
+    """Seeds the database."""
+    db.session.add(pocketMoney(username='budien', event="jogging 5K"))
+    db.session.add(pocketMoney(username='taomei', event="jogging 3k"))
+    db.session.commit()
 
 if __name__ == '__main__':
     cli()

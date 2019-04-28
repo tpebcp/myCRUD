@@ -14,9 +14,11 @@ class BaseTestCase(TestCase):
         return app
 
     def setUp(self):
+        print("*******setup database - create all")
         db.create_all()
         db.session.commit()
 
     def tearDown(self):
+        print("********drop tables - clear all")
         db.session.remove()
         db.drop_all()
