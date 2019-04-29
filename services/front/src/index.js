@@ -2,16 +2,19 @@ import React, {Component} from "react"
 import ReactDOM from 'react-dom';
 import axios from 'axios'
 import EventList from './components/EventList'
+import AddEvent from './components/AddEvent'
 
 class App extends Component {
+    
     constructor() {
         super()
         this.state = {
             records: [],
             userName: "",
             money: "",
-            event: ""
+            activities: ""
         }
+        this.addRecord = this.addRecord.bind(this); 
         this.handleChange = this.handleChange.bind(this)
     }
 
@@ -21,12 +24,34 @@ class App extends Component {
         })
     }
 
-    getRecords() {
-         console.log(process.env.REACT_APP_USERS_SERVICE_URL)
+    getRecords() {  //  奇怪這支程式不用binding...
+         // console.log(process.env.REACT_APP_USERS_SERVICE_URL)
          axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/events`)
-         .then((res) => { this.setState({ records: res.data.data.events }); })
+         .then((res) => { 
+             //console.log(res); 
+             this.setState({ records: res.data.data.events }); 
+         })
          .catch((err) => { console.log(err); });
     }
+
+    addRecord(event) {
+        event.preventDefault();
+        console.log(this.state);
+        const data = {
+            username: this.state.userName,  // 極難除的錯：username全小寫，配合資料庫欄位全小寫
+            activities: this.state.activities,
+            money: this.state.money
+        };
+        axios.post(`${process.env.REACT_APP_USERS_SERVICE_URL}/events`, data)
+        .then(
+            (response) => {
+            //console.log(response);
+            this.getRecords();
+            this.setState({userName:'',activities:'', money:''}); // 清空輸入欄，在寫入backend API之後
+            }
+        )
+        .catch((error) => {console.log(error)})
+    };
 
     componentDidMount() {
         this.getRecords();
@@ -35,52 +60,22 @@ class App extends Component {
     render() {
         return (
             <div className="columns">
-                <div className="column is-one-third container is-fluid">
-                <form>
-                    <p><b> 小朋友的名字</b></p>
-                    <div className="control">
-                        <label className="radio">
-                             <input name="userName" type="radio" value="不點"
-                                    checked={this.state.userName === "不點" } 
-                                    onChange={this.handleChange}
-                             />不點
-                        </label>
-                        <label className="radio">
-                             <input name="userName" type="radio" value="頭妹"
-                                    checked={this.state.userName === "頭妹" } 
-                                    onChange={this.handleChange} 
-                             />頭妹
-                        </label>
+                <div className="column container is-fluid">
+                    <AddEvent 
+                        userName={this.state.userName}              // 傳值
+                        activities={this.state.activities}          // 傳值
+                        money={this.state.money}                    // 傳值
+                        addRecord={this.addRecord}                    // 傳，或說呼叫function addUser
+                        handleChange={this.handleChange}            // 傳，或說呼叫function handleChange
+                    />
+                    <h1>{this.state.userName} {this.state.money} {this.state.activities}</h1> 
+                </div>
+                <div className="column container is-fluid">
+                    <h4> 過往紀錄 </h4>
+                    <div className="box title is-4">
+                        <EventList record={this.state.records}/>
                     </div>
-                    <div className="field">
-                        <label className="label">零用錢的數目</label>
-                            <input 
-                                className="input" 
-                                name="money"
-                                type="text" 
-                                placeholder="多少錢"
-                                onChange={this.handleChange}
-                            />
-                    </div>
-                    <div className="field">
-                        <label className="label">因什麼事得到獎勵</label>
-                            <input 
-                                className="input" 
-                                name="event"
-                                type="text" 
-                                placeholder="具體事蹟"
-                                onChange={this.handleChange}
-                            />
-                    </div>
-                    <div className="control">
-                        <button className="button is-primary"> 確定送出 </button>
-                    </div>
-                </form>
-            </div>
-            <div className="column is-one-third container is-fluid">
-            <h1>{this.state.userName} {this.state.money} {this.state.event} </h1> 
-            <EventList record={this.state.records}/>
-            </div>
+                </div>
             </div>
         )
     }

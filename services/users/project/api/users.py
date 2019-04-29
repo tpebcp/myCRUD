@@ -22,7 +22,10 @@ class UsersPing(Resource):
 class EventList(Resource):
     def post(self):
         post_data = request.get_json()
-        print(post_data)
+        errorFile = open('errorInfo.txt', 'w')
+        errorFile.write(str(post_data))
+        errorFile.close()
+        #print(post_data)
         # setup a warning reponse if input is not good
         response_object = {
             'status': 'fail',
@@ -33,17 +36,18 @@ class EventList(Resource):
             return response_object, 400
 
         username = post_data.get('username')
-        event = post_data.get('event')
+        activities = post_data.get('activities')
+        money = post_data.get('money')
 
-        if not username or not event:
-            print("from not username or not event")
+        if not username or not activities:
+            print("from not username or not activities")
             return response_object, 400
 
-        db.session.add(pocketMoney(username=username, event=event))
+        db.session.add(pocketMoney(username=username, activities=activities, money=money))
         db.session.commit()
         response_object = {
             'status': 'success',
-            'message': f'event {event} was added!'
+            'message': f'activity {activities} was added!'
         }
         return response_object, 201
 

@@ -9,7 +9,7 @@ import React from 'react';
             console.log(record)
                     return (
                         <h4 key={record.id} className="box title is-4">
-                            { record.username}{ record.event}{record.money }
+                            { record.username }{ record.activities }{ record.money }
                         </h4>
                     )
             })

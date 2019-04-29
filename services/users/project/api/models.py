@@ -10,18 +10,19 @@ class pocketMoney(db.Model):
     __tablename__ = 'pocketMoney'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(64), nullable=False)
-    event = db.Column(db.String(128), nullable=False)
+    activities = db.Column(db.String(128), nullable=False)
     money = db.Column(db.Integer(), nullable=True)
-    #active = db.Column(db.Boolean(), default=True, nullable=False)
+    #saved = db.Column(db.Boolean(), default=True, nullable=False)
 
-    def __init__(self, username, event):
+    def __init__(self, username, activities, money):
         self.username = username
-        self.event = event
+        self.activities = activities
+        self.money = money
 
     def to_json(self):
         return {
             'id': self.id,
             'username': self.username,
-            'event': self.event,
+            'activities': self.activities,
             'money': self.money
         }
