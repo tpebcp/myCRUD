@@ -12,17 +12,19 @@ class pocketMoney(db.Model):
     username = db.Column(db.String(64), nullable=False)
     activities = db.Column(db.String(128), nullable=False)
     money = db.Column(db.Integer(), nullable=True)
-    #saved = db.Column(db.Boolean(), default=True, nullable=False)
+    disabled = db.Column(db.Boolean(), default=False, nullable=False)
 
-    def __init__(self, username, activities, money):
+    def __init__(self, username, activities, money,disabled):
         self.username = username
         self.activities = activities
         self.money = money
+        self.disabled = disabled
 
     def to_json(self):
         return {
             'id': self.id,
             'username': self.username,
             'activities': self.activities,
-            'money': self.money
+            'money': self.money,
+            'disabled': self.disabled
         }

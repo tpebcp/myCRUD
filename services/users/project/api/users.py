@@ -38,12 +38,14 @@ class EventList(Resource):
         username = post_data.get('username')
         activities = post_data.get('activities')
         money = post_data.get('money')
+        disabled = post_data.get('disabled')
 
         if not username or not activities:
             print("from not username or not activities")
             return response_object, 400
 
-        db.session.add(pocketMoney(username=username, activities=activities, money=money))
+        db.session.add(pocketMoney(username=username, activities=activities, money=money,
+                                   disabled=disabled))
         db.session.commit()
         response_object = {
             'status': 'success',

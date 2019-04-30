@@ -12,17 +12,49 @@ class App extends Component {
             records: [],
             userName: "",
             money: "",
-            activities: ""
+            activities: "",
+            disabled: ""
         }
         this.addRecord = this.addRecord.bind(this); 
         this.handleChange = this.handleChange.bind(this)
+        this.handleClick = this.handleClick.bind(this)
     }
 
     handleChange(event) {
+        //console.log(event.target.name)
         this.setState({
             [event.target.name]: event.target.value
         })
     }
+
+    //handleClick(){
+    //    // console.log(this.state.disabled) works
+    //    console.log("index.js handleClick() executed") // works
+    //    this.setState(
+    //        prevState => {
+    //        return ({
+    //            disabled: !prevState.disabled
+    //        })
+    //    })
+    //}
+
+        handleClick(id) {
+         this.setState(
+             prevState => {
+                 const updatedRecords = prevState.records.map(
+                     record => {
+                         if (record.id === id) {
+                             record.disabled= !record.disabled
+                         }
+                         return record // 這裏的record就像前例的item，只是做map()來iterate時一個暫時的物件
+                     }
+                 )
+                 return {
+                     todos: updatedRecords
+                 }
+             }
+         )
+     }
 
     getRecords() {  //  奇怪這支程式不用binding...
          // console.log(process.env.REACT_APP_USERS_SERVICE_URL)
@@ -36,11 +68,12 @@ class App extends Component {
 
     addRecord(event) {
         event.preventDefault();
-        console.log(this.state);
+        // console.log(this.state);
         const data = {
             username: this.state.userName,  // 極難除的錯：username全小寫，配合資料庫欄位全小寫
             activities: this.state.activities,
-            money: this.state.money
+            money: this.state.money,
+            disabled: false  // default is false
         };
         axios.post(`${process.env.REACT_APP_USERS_SERVICE_URL}/events`, data)
         .then(
@@ -58,6 +91,8 @@ class App extends Component {
     };
 
     render() {
+
+        const eventlist = this.state.records.map(item => <EventList key={item.id} item={item} handleClick={this.handleClick} /> )
         return (
             <div className="columns">
                 <div className="column container is-fluid">
@@ -65,15 +100,16 @@ class App extends Component {
                         userName={this.state.userName}              // 傳值
                         activities={this.state.activities}          // 傳值
                         money={this.state.money}                    // 傳值
-                        addRecord={this.addRecord}                    // 傳，或說呼叫function addUser
+                        disabled={this.state.disabled}              // 傳值
+                        addRecord={this.addRecord}                  // 傳，或說呼叫function addRecord
                         handleChange={this.handleChange}            // 傳，或說呼叫function handleChange
                     />
-                    <h1>{this.state.userName} {this.state.money} {this.state.activities}</h1> 
+                    <h1>{this.state.userName} {this.state.money} {this.state.activities} {this.state.disabled} </h1> 
                 </div>
                 <div className="column container is-fluid">
                     <h4> 過往紀錄 </h4>
                     <div className="box title is-4">
-                        <EventList record={this.state.records}/>
+                        { eventlist }
                     </div>
                 </div>
             </div>
