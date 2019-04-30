@@ -27,34 +27,23 @@ class App extends Component {
         })
     }
 
-    //handleClick(){
-    //    // console.log(this.state.disabled) works
-    //    console.log("index.js handleClick() executed") // works
-    //    this.setState(
-    //        prevState => {
-    //        return ({
-    //            disabled: !prevState.disabled
-    //        })
-    //    })
-    //}
-
-        handleClick(id) {
-         this.setState(
-             prevState => {
-                 const updatedRecords = prevState.records.map(
-                     record => {
-                         if (record.id === id) {
-                             record.disabled= !record.disabled
-                         }
-                         return record // 這裏的record就像前例的item，只是做map()來iterate時一個暫時的物件
-                     }
-                 )
-                 return {
-                     todos: updatedRecords
-                 }
-             }
-         )
-     }
+    handleClick(id) {
+        this.setState(
+            prevState => {
+                const updatedRecords = prevState.records.map(
+                    counter => {
+                        if (counter.id === id) {
+                            counter.disabled= !counter.disabled
+                        }
+                        return counter // 這裏的counter就像前例的item，只是做map()來iterate時一個暫時的物件
+                    }
+                )
+                return {
+                    todos: updatedRecords
+                }
+            }
+        )
+    }
 
     getRecords() {  //  奇怪這支程式不用binding...
          // console.log(process.env.REACT_APP_USERS_SERVICE_URL)
@@ -92,7 +81,13 @@ class App extends Component {
 
     render() {
 
-        const eventlist = this.state.records.map(item => <EventList key={item.id} item={item} handleClick={this.handleClick} /> )
+        const eventlist = this.state.records.map(
+            item => <EventList 
+                key={item.id} 
+                item={item} 
+                handleClick={this.handleClick} 
+            /> 
+        )
         return (
             <div className="columns">
                 <div className="column container is-fluid">
