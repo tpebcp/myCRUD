@@ -3,7 +3,7 @@
 
 from flask import Blueprint, request
 from flask_restful import Resource, Api
-
+from sqlalchemy import exc
 from project import db
 from project.api.models import pocketMoney
 import logging
@@ -14,7 +14,6 @@ api = Api(users_blueprint)
 logging.basicConfig(
         level=logging.DEBUG, 
         filename="service.users.log",
-        datefmt="%m/%d/%Y %I:%M:%S %p %Z",
         format=' %(asctime)s - %(levelname)s - %(message)s'
 )
 
@@ -69,9 +68,31 @@ class EventList(Resource):
 
 class Event(Resource):
 
-    def delete(self):
+    def delete(self, event_id):
         """Delete a specified event"""
-        pass
+        response_object = {
+            'status': 'fail',
+            'message': 'Event does not exist'
+        }
+        try:
+            queryResult= pocketMoney.query.filter_by(id=int(event_id)).first()
+            logging.debug(str(queryResult))
+            if not queryResult:
+                logging.debug("the event user specified was not found, aborting record deletion.")
+                return response_object, 404
+            else:
+                db.session.delete(queryResult)
+                db.session.commit()
+                response_object = {
+                    'status': 'success',
+                    'message': f'event {event_id} was deleted!'
+                }
+                return response_object, 201
+        except exc.IntegrityError:
+            db.session.rollback()
+            logging.debug("database rollback after a event deletion abortion")
+            return response_object, 400
+
 
     def get(self, event_id):
         """Get one event details"""
@@ -98,5 +119,5 @@ class Event(Resource):
             return response_object, 404
 
 api.add_resource(UsersPing, '/users/ping')
-api.add_resource(EventList, '/events')
-api.add_resource(Event, '/events/<event_id>') # 注意Event, EventList二個resource不同
+api.add_resource(EventList, '/events') # 注意，EventList and Event二個resources不同
+api.add_resource(Event, '/events/<event_id>') # event_id是傳入變數名不能亂取要配合API
